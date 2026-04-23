@@ -2,7 +2,8 @@ from fastapi import FastAPI
 import tempfile
 import requests
 import os
-
+from pydantic import BaseModel
+from typing import Optional
 from audio_features import extract_features
 from normalization import normalize_all
 
@@ -30,16 +31,20 @@ def resolve_file(file_path=None, file_url=None):
 
     raise ValueError("No file_path or file_url provided")
 
+class AudioRequest(BaseModel):
+    audioKey: Optional[str] = None
+    file_url: Optional[str] = None
 
 # ---------------------------
 # API
 # ---------------------------
 @app.post("/analyze")
-def analyze(payload: dict):
+def analyze(payload: AudioRequest):
 
-    file_path = payload.get("file_path")
-    file_url = payload.get("file_url")
-
+    file_path = payload.audioKey
+    file_url = payload.file_url
+    print("@@@@audioKey:", payload.audioKey)
+    print("file_url:", payload.file_url)
     # 1. קבלת קובץ
     audio_file = resolve_file(file_path, file_url)
 
